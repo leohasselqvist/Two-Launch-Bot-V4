@@ -39,8 +39,11 @@ async def on_ready():
                  )
              ])
 async def load(ctx, extension: str):
-    bot.load_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} cog loaded!")
+    try:
+        bot.load_extension(f"cogs.{extension}")
+        await ctx.send(f"{extension} cog loaded!")
+    except commands.errors.ExtensionAlreadyLoaded:
+        await ctx.send(f"{extension} cog is already loaded", hidden=True)
 
 
 @slash.slash(name="ping", description="Fyfan vad coolt", guild_ids=[377169144648302597])
