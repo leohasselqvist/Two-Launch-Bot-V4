@@ -42,9 +42,9 @@ async def on_ready():
 async def load(ctx, extension: str):
     try:
         bot.load_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension} cog loaded!")
+        await ctx.send(f"{extension.capitalize()} cog loaded!")
     except commands.errors.ExtensionAlreadyLoaded:
-        await ctx.send(f"{extension} cog is already loaded")
+        await ctx.send(f"{extension.capitalize()} cog is already loaded")
 
 
 @slash.slash(name="unload",
@@ -63,9 +63,9 @@ async def load(ctx, extension: str):
 async def unload(ctx, extension: str):
     try:
         bot.unload_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension} cog unloaded!")
+        await ctx.send(f"{extension.capitalize()} cog unloaded!")
     except commands.errors.ExtensionNotLoaded:
-        await ctx.send(f"{extension} is already unloaded.")
+        await ctx.send(f"{extension.capitalize()} cog is already unloaded.")
 
 
 @slash.slash(name="reload",
@@ -84,7 +84,7 @@ async def unload(ctx, extension: str):
 async def reload(ctx, extension: str):
     try:
         bot.reload_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension} cog reloaded!")
+        await ctx.send(f"{extension.capitalize()} cog reloaded!")
     except commands.errors.ExtensionNotLoaded:
         await ctx.send(f"You can not reload an unloaded cog.")
 
