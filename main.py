@@ -38,6 +38,7 @@ async def on_ready():
                      choices=cogs_list
                  )
              ])
+@commands.is_owner()
 async def load(ctx, extension: str):
     try:
         bot.load_extension(f"cogs.{extension}")
