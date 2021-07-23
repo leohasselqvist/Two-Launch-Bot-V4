@@ -9,13 +9,15 @@ import os
 print("Loading...\n--------\n")
 
 token = open("client_secret.txt", "r").read()
-
 bot = commands.Bot(intents=Intents.all(), command_prefix="/")
 slash = SlashCommand(bot, sync_commands=True)
-unloaded_cogs = []
+cogs_list = []
 for filename in os.listdir('./cogs'):
     if filename.endswith(".py"):
-        unloaded_cogs.append(create_choice(name=filename[:-3].capitalize(), value=filename[:-3]))
+        bot.load_extension(f"cogs.{filename[:-3]}")
+        cogs_list.append(create_choice(name=filename[:-3].capitalize(), value=filename[:-3]))
+        print(f"Loaded {filename.strip('.py')}")
+
 db.setup()
 
 
@@ -33,7 +35,7 @@ async def on_ready():
                      description="Name of the extension to load",
                      option_type=SlashCommandOptionType.STRING,
                      required=True,
-                     choices=unloaded_cogs
+                     choices=cogs_list
                  )
              ])
 async def load(ctx, extension: str):
@@ -70,10 +72,4 @@ async def _ping(ctx):
 async def test(ctx, optone: str):
     await ctx.send(content=f"Wow, you actually chose {optone}? :(")
 
-
-if __name__ == "__main__":
-    for filename in os.listdir('./cogs'):
-        if filename.endswith(".py"):
-            bot.load_extension(f"cogs.{filename[:-3]}")
-            print(f"Loaded {filename.strip('.py')}")
-    bot.run(token)
+bot.run(token)
