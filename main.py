@@ -8,28 +8,14 @@ import os
 
 print("Loading...\n--------\n")
 
-"""
-SUB_COMMAND 1
-
-SUB_COMMAND_GROUP 2
-
-STRING 3
-
-INTEGER 4
-
-BOOLEAN 5
-
-USER 6
-
-CHANNEL 7
-
-ROLE 8
-"""
-
 token = open("client_secret.txt", "r").read()
 
 bot = commands.Bot(intents=Intents.all(), command_prefix="/")
 slash = SlashCommand(bot, sync_commands=True)
+unloaded_cogs = []
+for filename in os.listdir('./cogs'):
+    if filename.endswith(".py"):
+        unloaded_cogs.append(create_choice(name=filename[:-3].capitalize(), value=filename[:-3]))
 db.setup()
 
 
@@ -46,25 +32,13 @@ async def on_ready():
                      name="extension",
                      description="Name of the extension to load",
                      option_type=SlashCommandOptionType.STRING,
-                     required=True
+                     required=True,
+                     choices=unloaded_cogs
                  )
              ])
 async def load(ctx, extension: str):
+    bot.load_extension(f"cogs.{extension}")
     await ctx.send(f"{extension} cog loaded!")
-
-# @client.command()
-# async def load(_, extension):
-#     client.load_extension(f'cogs.{extension}')
-#
-#
-# @client.command()
-# async def unload(_, extension):
-#     client.unload_extension(f'cogs.{extension}')
-#
-#
-# @client.command()
-# async def reload(_, extension):
-#     client.reload_extension(f'cogs.{extension}')
 
 
 @slash.slash(name="ping", description="Fyfan vad coolt", guild_ids=[377169144648302597])
@@ -98,8 +72,8 @@ async def test(ctx, optone: str):
 
 
 if __name__ == "__main__":
-    # for filename in os.listdir('./cogs'):
-    #     if filename.endswith(".py"):
-    #         bot.load_extension(f"cogs.{filename[:-3]}")
-    #         print(f"Loaded {filename.strip('.py')}")
+    for filename in os.listdir('./cogs'):
+        if filename.endswith(".py"):
+            bot.load_extension(f"cogs.{filename[:-3]}")
+            print(f"Loaded {filename.strip('.py')}")
     bot.run(token)
