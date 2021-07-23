@@ -1,9 +1,9 @@
 from discord.ext import commands
 from discord import Embed
-from discord_slash import SlashCommand, SlashContext, cog_ext
+from discord_slash import SlashCommand, SlashContext, cog_ext, ComponentContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.model import SlashCommandOptionType
-from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.utils.manage_components import create_button, create_actionrow, wait_for_component
 from discord_slash.model import ButtonStyle
 
 
@@ -24,18 +24,24 @@ class Moderation(commands.Cog):
             )
         ])
     async def clear(self, ctx: SlashContext, amount: int):
-        await ctx.send(f"Are you sure you want to clear {amount} messages?", components=[
-            create_actionrow(
-                create_button(
-                    style=ButtonStyle.red,
-                    label="Cancel"
-                ),
-                create_button(
-                    style=ButtonStyle.blue,
-                    label="Confirm"
-                ),
-            )
-        ])
+        confirmation_actionrow = create_actionrow(
+            create_button(
+                style=ButtonStyle.blue,
+                label="Confirm",
+                custom_id="buttonConfirm"
+            ),
+            create_button(
+                style=ButtonStyle.red,
+                label="Cancel",
+                custom_id="buttonCancel"
+            ),
+        )
+        delete_message = await ctx.send(f"Are you sure you want to clear {amount} messages?", components=[confirmation_actionrow])
+        button_ctx: ComponentContext = await wait_for_component(self.bot, components=confirmation_actionrow)
+        if button_ctx.custom_id == "buttonConfirm":
+            await delete_message.edit(content=f"Cleared {amount} messages!")
+        else:
+            await delete_message.edit(content="Cancelling clear command...")
 
 
 def setup(client):
