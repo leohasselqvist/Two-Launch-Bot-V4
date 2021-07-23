@@ -38,6 +38,20 @@ async def on_ready():
     print("Bot started")
 
 
+@slash.slash(name="load",
+             description="Load a previously unloaded extension to the bot",
+             guild_ids=[377169144648302597],
+             options=[
+                 create_option(
+                     name="extension",
+                     description="Name of the extension to load",
+                     option_type=SlashCommandOptionType.STRING,
+                     required=True
+                 )
+             ])
+async def load(ctx, extension: str):
+    await ctx.send(f"{extension} cog loaded!")
+
 # @client.command()
 # async def load(_, extension):
 #     client.load_extension(f'cogs.{extension}')
