@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from discord import Embed
 from discord_slash import SlashCommand, SlashContext, cog_ext
@@ -63,17 +64,17 @@ class DB(commands.Cog):
         guild_ids=[377169144648302597],
         options=[
             create_option(
-                name="user_nick",
-                description="Nickname of the user",
-                option_type=SlashCommandOptionType.STRING,
+                name="user",
+                description="User to view",
+                option_type=SlashCommandOptionType.USER,
                 required=True)
         ])
-    async def viewuser(self, ctx, user_nick: str):
-        user = db.fetchuser(0, user_nick)
-        if not user:  # If the returned value from fetchuser() is null, the user does not exist
-            embed = Embed(title="Could not find user", description=f"The user '{user_nick}' could not be found.")
+    async def viewuser(self, ctx, user: discord.User):
+        db_user = db.fetchuser(0, user.display_name)
+        if not db_user:  # If the returned value from fetchuser() is null, the user does not exist
+            embed = Embed(title="Could not find user", description=f"The user '{user.display_name}' could not be found.")
         else:
-            embed = Embed(title=user[2], description=f"**ID:** {user[0]}\n**KB:** {user[1]}\n")
+            embed = Embed(title=db_user[2], description=f"**ID:** {db_user[0]}\n**KB:** {db_user[1]}\n")
         await ctx.send(embed=embed)
 
     @commands.has_permissions(administrator=True)
@@ -91,7 +92,8 @@ class DB(commands.Cog):
                 name="user_column",
                 description="Which attribute to edit",
                 option_type=SlashCommandOptionType.STRING,
-                required=True),
+                required=True,
+                choices=["ID", "KB", "NICK"]),
             create_option(
                 name="new_value",
                 description="What the new value should be",
