@@ -1,3 +1,5 @@
+import asyncio
+
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext, cog_ext, ComponentContext
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -35,13 +37,21 @@ class Moderation(commands.Cog):
                 custom_id="buttonCancel"
             ),
         )
+
+        def is_not_bot(m):
+            return m.author != self.bot.user
+
         delete_message = await ctx.send(f"Are you sure you want to clear {amount} messages?", components=[confirmation_actionrow])
-        button_ctx: ComponentContext = await wait_for_component(self.bot, components=confirmation_actionrow)
-        if button_ctx.custom_id == "buttonConfirm":
-            await delete_message.edit(content=f"Cleared {amount} messages!", components=[])
-        else:
-            await delete_message.edit(content="Cancelling clear command...", components=[])
-        await delete_message.delete(delay=10)
+        try:
+            button_ctx: ComponentContext = await wait_for_component(self.bot, components=confirmation_actionrow, timeout=10)
+            if button_ctx.custom_id == "buttonConfirm":
+                await delete_message.edit(content=f"Cleared {amount} messages!", components=[])
+                await ctx.channel.purge(limit=amount + 1, check=is_not_bot)
+            else:
+                await delete_message.edit(content="Cancelled clear command.", components=[])
+            await delete_message.delete(delay=2)
+        except asyncio.TimeoutError:
+            await delete_message.delete()
 
 
 def setup(client):
