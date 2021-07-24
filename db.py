@@ -58,7 +58,7 @@ def fetchuser(userid, nick=None):  # Fetch a user via ID. If nick arg is given a
 
 # Insert ID, Column, and the New Value to edit entries. Column is not an index, it is the name, Ex: NICK or KB.
 def edituser(userid, column, newvalue, nick=None):
-    command = f"UPDATE WHERE USER set {column} = "  # Set basic info for the command  (IF IT FAILS HERE REMOVE WHERE
+    command = f"UPDATE USER set {column} = "  # Set basic info for the command
     # Correctly format if the new value is a string
     if type(newvalue) is str:
         command += f"'{newvalue}' "
@@ -76,7 +76,7 @@ def edituser(userid, column, newvalue, nick=None):
 
 
 def editall(column, newvalue):
-    command = f"UPDATE WHERE USER set {column} = "  # Set basic info for the command (IF IT FAILS HERE REMOV
+    command = f"UPDATE USER set {column} = "  # Set basic info for the command
     # Correctly format if the new value is a string
     if type(newvalue) is str:
         command += f"'{newvalue}' "
