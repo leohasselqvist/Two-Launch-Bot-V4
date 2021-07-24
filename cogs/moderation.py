@@ -39,9 +39,9 @@ class Moderation(commands.Cog):
         delete_message = await ctx.send(f"Are you sure you want to clear {amount} messages?", components=[confirmation_actionrow])
         button_ctx: ComponentContext = await wait_for_component(self.bot, components=confirmation_actionrow)
         if button_ctx.custom_id == "buttonConfirm":
-            await delete_message.edit(content=f"Cleared {amount} messages!")
+            await delete_message.edit(content=f"Cleared {amount} messages!", components=[])
         else:
-            await delete_message.edit(content="Cancelling clear command...")
+            await delete_message.edit(content="Cancelling clear command...", components=[])
 
 
 def setup(client):
