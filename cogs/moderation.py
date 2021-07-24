@@ -12,6 +12,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.has_permissions(manage_messages=True)
     @cog_ext.cog_slash(
         name="clear",
         description="Clear a specified number of messages",
