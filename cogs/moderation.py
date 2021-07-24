@@ -1,5 +1,4 @@
 from discord.ext import commands
-from discord import Embed
 from discord_slash import SlashCommand, SlashContext, cog_ext, ComponentContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.model import SlashCommandOptionType
@@ -42,6 +41,7 @@ class Moderation(commands.Cog):
             await delete_message.edit(content=f"Cleared {amount} messages!", components=[])
         else:
             await delete_message.edit(content="Cancelling clear command...", components=[])
+        await delete_message.delete(delay=10)
 
 
 def setup(client):
