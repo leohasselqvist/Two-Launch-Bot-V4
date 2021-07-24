@@ -1,7 +1,12 @@
 from discord.ext import commands
 import discord
+from discord import Embed
+from discord_slash import SlashCommand, SlashContext, cog_ext
+from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.model import SlashCommandOptionType
 from sqlite3 import IntegrityError
 import db
+
 db.setup()
 
 
@@ -52,20 +57,26 @@ class Kottbullar(commands.Cog):
         else:
             await ctx.send("Du kan inte skicka köttbullar till dig själv")
 
-    @commands.command()
-    async def kb(self, ctx, *args):
-        try:
-            other = self.discord_id_check(args[0])
-        except IndexError:
-            other = None
-
-        if other:
-            try:
-                await ctx.send(f"{other.display_name} har {str(db.fetchuser(other.id)[1])} köttbullar i pannan")
-            except AttributeError:
-                await ctx.send(f"{other} har {str(db.fetchuser(0, nick=other)[1])} köttbullar i pannan")
-        else:
-            await ctx.send(f"Du har {str(db.fetchuser(ctx.message.author.id)[1])} köttbullar i pannan")
+    @cog_ext.cog_slash(
+        name="kb",
+        description="Check your own or someone else's köttbullar",
+        guild_ids=[377169144648302597],
+        options=[
+            create_option(
+                name="user",
+                description="(Optional) Other user to view",
+                option_type=SlashCommandOptionType.USER,
+                required=False)
+        ])
+    async def kb(self, ctx, user=None):
+        if user is None:  # If there was no user specified
+            user = ctx.author  # The user to check will be the author of the message
+        embed = Embed(
+            title="Bank of KB",
+            description=f"{user.display_name} har {str(db.fetchuser(user.id)[1])} köttbullar i pannan"
+            # Line above grabs the user's table from the db, then grabs column 1, the one that stores KB.
+        )
+        await ctx.send(embed=embed)
 
     @kb.error
     async def kb_error(self, ctx, error):
