@@ -124,6 +124,20 @@ class Kottbullar(commands.Cog):
             await ctx.send(f"Okänt fel för ``kbsend``: ``{error}``")
             raise error
 
+    @cog_ext.cog_slash(
+        name="kbhistory",
+        description="Check your KB transfer history",
+        guild_ids=[377169144648302597]
+    )
+    async def kbhistory(self, ctx):
+        user = ctx.author  # The user to check will be the author of the message
+        embed = Embed(
+            title="Bank of KB",
+            description=f"{db.fetchhistory(user.id)}"
+            # Line above grabs the user's table from the db, then grabs column 1, the one that stores KB.
+        )
+        await ctx.send(embed=embed)
+
     @commands.command()
     @commands.has_role(616590353709006859)
     async def kbmasstransfer(self, ctx, amount: int):
