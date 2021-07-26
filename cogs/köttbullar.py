@@ -33,29 +33,56 @@ class Kottbullar(commands.Cog):
                 except IntegrityError:
                     pass
 
-    @commands.command(aliases=["mata", "feed"])
-    async def kbsend(self, ctx, *args):
-        sender = ctx.message.author
-        amount = int(args[0])
-        try:
-            receiver = self.discord_id_check(args[1])
-        except IndexError:
-            receiver = None
-        reason = ""
-        for word in args[2:len(args)]:
-            reason += word + " "
+    @cog_ext.cog_slash(
+        name="kbsend",
+        description="Send someone your KB",
+        guild_ids=[377169144648302597],
+        options=[
+            create_option(
+                name="amount",
+                description="Amount of Kb to be sent",
+                option_type=SlashCommandOptionType.INTEGER,
+                required=True),
+            create_option(
+                name="receiver",
+                description="User to send KB to",
+                option_type=SlashCommandOptionType.USER,
+                required=True),
+            create_option(
+                name="reason",
+                description="(Optional) Reason for payment",
+                option_type=SlashCommandOptionType.STRING,
+                required=False)
+        ])
+    async def kbsend(self, ctx, amount: int, receiver: discord.User, reason="No reason"):
+        sender = ctx.author
+        #amount = int(args[0])
+        #try:
+        #    receiver = self.discord_id_check(args[1])
+        #except IndexError:
+        #    receiver = None
+        #reason = ""
+        #for word in args[2:len(args)]:
+        #    reason += word + " "
 
         if sender != receiver:
             try:
                 db.KB.send(sender.id, receiver.id, amount, reason)
-                await ctx.send(f"Skickade {amount} köttbullar till {receiver.display_name}")
-            except AttributeError:
-                db.KB.send(sender.id, db.fetchuser(0, nick=receiver)[0], amount, reason)
-                await ctx.send(f"Skickade {amount} köttbullar till {receiver}")
+                embed = Embed(title="KB Sent!",
+                              description=f"Sent {amount} KB to {receiver.display_name} for '{reason}'",
+                              color=0x00ff00
+                              )
             except IndexError:
-                await ctx.send("Du får steka mer köttbullar, du har för få för det där.")
+                embed = Embed(title="Send KB Error",
+                              description="You don't have enough KB",
+                              color=0xff0000,
+                              hidden=True)
         else:
-            await ctx.send("Du kan inte skicka köttbullar till dig själv")
+            embed = Embed(title="Send KB Error",
+                          description="You can't send KB to yourself, silly goose.",
+                          color=0xff0000,
+                          hidden=True)
+        await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
         name="kb",
